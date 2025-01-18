@@ -14,6 +14,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  AreaChart,
+  Area,
 } from "recharts";
 import {
   ScrollText,
@@ -22,6 +24,8 @@ import {
   Calendar,
   ArrowUp,
   ArrowDown,
+  Download,
+  Users,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -47,6 +51,26 @@ export default function Dashboard() {
     ],
   };
 
+  // Data statistik penduduk
+  const populationData = {
+    2025: [
+      { month: "Jan", total: 5200, laki: 2600, perempuan: 2600 },
+      { month: "Feb", total: 5220, laki: 2610, perempuan: 2610 },
+      { month: "Mar", total: 5250, laki: 2620, perempuan: 2630 },
+      { month: "Apr", total: 5280, laki: 2635, perempuan: 2645 },
+      { month: "May", total: 5300, laki: 2645, perempuan: 2655 },
+      { month: "Jun", total: 5320, laki: 2655, perempuan: 2665 },
+    ],
+    2024: [
+      { month: "Jan", total: 5000, laki: 2500, perempuan: 2500 },
+      { month: "Feb", total: 5020, laki: 2505, perempuan: 2515 },
+      { month: "Mar", total: 5050, laki: 2520, perempuan: 2530 },
+      { month: "Apr", total: 5080, laki: 2535, perempuan: 2545 },
+      { month: "May", total: 5100, laki: 2545, perempuan: 2555 },
+      { month: "Jun", total: 5120, laki: 2555, perempuan: 2565 },
+    ],
+  };
+
   // Warna untuk charts
   const COLORS = [
     "#0088FE",
@@ -69,28 +93,64 @@ export default function Dashboard() {
     suratData[selectedYear].length
   ).toFixed(1);
 
+  // Handle export data
+  const handleExport = () => {
+    const data = {
+      suratData: suratData[selectedYear],
+      populationData: populationData[selectedYear],
+      summary: {
+        totalSurat,
+        avgGrowth,
+        totalPenduduk:
+          populationData[selectedYear][populationData[selectedYear].length - 1]
+            .total,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dashboard-data-${selectedYear}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen p-6 text-gray-600">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Dashboard Administrasi Surat Desa
-          </h1>
-          <div className="mt-4 flex items-center">
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              className="px-4 py-2 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="2025">2025</option>
-              <option value="2024">2024</option>
-            </select>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Dashboard Administrasi Surat Desa
+            </h1>
+            <div className="mt-4 flex items-center gap-4">
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="px-4 py-2 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Download size={18} />
+                Export Data
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 shadow-md">
             <div className="flex items-center justify-between">
               <div>
@@ -139,10 +199,60 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Total Penduduk</p>
+                <h3 className="text-2xl font-bold text-gray-800 mt-1">
+                  {
+                    populationData[selectedYear][
+                      populationData[selectedYear].length - 1
+                    ].total
+                  }
+                </h3>
+              </div>
+              <div className="bg-orange-100 p-3 rounded-lg">
+                <Users className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Population Chart */}
+          <div className="bg-white p-6 rounded-xl shadow-md lg:col-span-2">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Statistik Penduduk
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <AreaChart data={populationData[selectedYear]}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Area
+                  type="monotone"
+                  dataKey="laki"
+                  stackId="1"
+                  stroke="#0088FE"
+                  fill="#0088FE"
+                  name="Laki-laki"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="perempuan"
+                  stackId="1"
+                  stroke="#FF8042"
+                  fill="#FF8042"
+                  name="Perempuan"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
           {/* Bar Chart */}
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
