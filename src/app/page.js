@@ -21,35 +21,19 @@ export default function Home() {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <svg viewBox="0 0 100 100" className="w-24 h-24">
-            <circle cx="50" cy="50" r="45" fill="#1d4ed8" />
-            <path
-              d="M30 40 H70 V70 H30 V40"
-              fill="white"
-              stroke="white"
-              strokeWidth="2"
+          <div className="w-24 h-24 relative">
+            <img
+              src="/logo.png"
+              alt="Logo Desa"
+              className="w-full h-full object-contain"
             />
-            <path
-              d="M40 30 L50 20 L60 30"
-              fill="none"
-              stroke="white"
-              strokeWidth="4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M45 50 H55 M45 60 H55"
-              stroke="#1d4ed8"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </svg>
+          </div>
         </div>
 
         {/* Title */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">
-            Sistem Informasi Penyuratan Desa
+            Sistem Informasi Penyuratan Desa Kateguhan
           </h1>
           <p className="text-gray-600 mt-2">Silakan masuk ke akun Anda</p>
         </div>
