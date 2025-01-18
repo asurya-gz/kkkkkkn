@@ -33,6 +33,7 @@ import {
 import Dashboard from "./page/Dashboard/page";
 import GantiPassword from "./page/GantiPassword/page";
 import ManajemenAkun from "./page/ManajemenAkun/page";
+import ManajemenPenduduk from "./page/ManajemenPenduduk/page";
 
 export default function Main() {
   const [isOpen, setIsOpen] = useState(true);
@@ -106,6 +107,8 @@ export default function Main() {
         return <GantiPassword />;
       case "manajemen-akun":
         return <ManajemenAkun />;
+      case "manajemen-penduduk":
+        return <ManajemenPenduduk />;
       default:
         return <Dashboard />;
     }
