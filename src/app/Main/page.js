@@ -32,6 +32,7 @@ import {
 
 import Dashboard from "./page/Dashboard/page";
 import GantiPassword from "./page/GantiPassword/page";
+import ManajemenAkun from "./page/ManajemenAkun/page";
 
 export default function Main() {
   const [isOpen, setIsOpen] = useState(true);
@@ -93,7 +94,6 @@ export default function Main() {
       id: "manajemen-akun",
     },
     { title: "AKUN", isHeader: true },
-    { icon: <User size={18} />, title: "Profil", id: "profil" },
     { icon: <Lock size={18} />, title: "Ganti Password", id: "ganti-password" },
     { icon: <LogOut size={18} />, title: "Keluar", id: "keluar" },
   ];
@@ -104,6 +104,8 @@ export default function Main() {
         return <Dashboard />;
       case "ganti-password":
         return <GantiPassword />;
+      case "manajemen-akun":
+        return <ManajemenAkun />;
       default:
         return <Dashboard />;
     }
