@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
+import Cookies from "js-cookie"; // Import js-cookie
 
 export default function Keluar() {
   const [countdown, setCountdown] = useState(3);
@@ -13,9 +14,14 @@ export default function Keluar() {
         if (prev <= 1) {
           clearInterval(timer);
           setFadeOut(true);
+
+          // Hapus cookies (misalnya token dan user ID)
+          Cookies.remove("token"); // Gantilah 'token' dengan nama cookie yang digunakan untuk menyimpan token
+          Cookies.remove("user_id"); // Gantilah 'user_id' jika ada cookie untuk user ID
+
           // Redirect after fade animation
           setTimeout(() => {
-            window.location.href = "/";
+            window.location.href = "/"; // Redirect ke halaman yang diinginkan setelah logout
           }, 1000);
         }
         return prev - 1;

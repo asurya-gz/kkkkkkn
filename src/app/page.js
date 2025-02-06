@@ -1,15 +1,70 @@
 "use client";
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
+    setError("");
+    setIsLoading(true);
+
+    // Basic form validation
+    if (!email || !password) {
+      setError("Email dan password harus diisi.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:4000/api/login", {
+        email,
+        password,
+      });
+
+      if (response.data && response.data.message === "Login berhasil!") {
+        const { token, user } = response.data;
+
+        // Store data in cookies
+        Cookies.set("token", token, { expires: 1 });
+        Cookies.set("role", user.role, { expires: 1 });
+        Cookies.set("email", user.email, { expires: 1 });
+
+        router.push("/Main");
+      }
+    } catch (error) {
+      let errorMessage = "Terjadi kesalahan. Silakan coba lagi.";
+
+      if (error.response) {
+        // Handle specific error cases
+        const status = error.response.status;
+        const responseMessage = error.response.data?.message;
+
+        if (status === 401) {
+          errorMessage = "Email atau password salah.";
+        } else if (status === 400) {
+          errorMessage = responseMessage || "Data yang dimasukkan tidak valid.";
+        } else if (status === 500) {
+          errorMessage =
+            "Terjadi kesalahan pada server. Silakan coba lagi nanti.";
+        }
+      } else if (!navigator.onLine) {
+        errorMessage = "Tidak ada koneksi internet. Periksa koneksi Anda.";
+      }
+
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -19,7 +74,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 text-gray-600">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="w-24 h-24 relative">
             <img
@@ -30,7 +84,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Title */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">
             Sistem Informasi Penyuratan Desa Kateguhan
@@ -38,8 +91,7 @@ export default function Home() {
           <p className="text-gray-600 mt-2">Silakan masuk ke akun Anda</p>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -52,10 +104,14 @@ export default function Home() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(""); // Clear error when user types
+                  }}
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                    error ? "border-red-300" : "border-gray-300"
+                  }`}
                   placeholder="Masukkan email Anda"
-                  required
                 />
               </div>
             </div>
@@ -71,10 +127,14 @@ export default function Home() {
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError(""); // Clear error when user types
+                  }}
+                  className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                    error ? "border-red-300" : "border-gray-300"
+                  }`}
                   placeholder="Masukkan password Anda"
-                  required
                 />
                 <button
                   type="button"
@@ -86,11 +146,22 @@ export default function Home() {
               </div>
             </div>
 
+            {error && (
+              <div className="bg-red-50 text-red-500 text-sm p-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium transition-colors"
+              disabled={isLoading}
+              className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                isLoading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } text-white focus:ring-4 focus:ring-blue-300`}
             >
-              Masuk
+              {isLoading ? "Memproses..." : "Masuk"}
             </button>
           </div>
         </form>

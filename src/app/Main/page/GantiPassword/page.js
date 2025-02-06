@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { KeyRound, Check, AlertCircle, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const GantiPassword = () => {
   const [formData, setFormData] = useState({
@@ -72,24 +74,55 @@ const GantiPassword = () => {
 
     setIsSubmitting(true);
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Ambil email dari cookie
+    const email = Cookies.get("email"); // Sesuaikan dengan nama cookie yang Anda gunakan
 
-      // Reset form
-      setFormData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+    if (!email) {
+      setErrors({
+        submit: "Sesi login tidak valid. Silakan login ulang.",
       });
-      setSuccessMessage("Password berhasil diubah!");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/change-password",
+        {
+          email: email,
+          oldPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        setSuccessMessage("Password berhasil diubah!");
+        setFormData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        setErrors({
+          submit: response.data.message || "Gagal mengubah password",
+        });
+      }
     } catch (error) {
-      setErrors({ submit: "Terjadi kesalahan. Silakan coba lagi." });
+      setErrors({
+        submit:
+          error.response?.data?.message ||
+          "Terjadi kesalahan. Silakan coba lagi.",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md text-gray-600">
       <div className="mb-6">
