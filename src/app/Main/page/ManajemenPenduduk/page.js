@@ -42,7 +42,7 @@ export default function ManajemenPenduduk() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:4000/api/all-penduduk"
+        "http://147.93.111.133:4000/api/all-penduduk"
       );
       setResidents(response.data.penduduk || []);
       setError(null);

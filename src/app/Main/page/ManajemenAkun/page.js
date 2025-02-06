@@ -23,7 +23,7 @@ export default function ManajemenAkun() {
     setHasAccess(userRole === "admin");
 
     axios
-      .get("http://localhost:4000/api/all-users")
+      .get("http://147.93.111.133:4000/api/all-users")
       .then((response) => {
         setAccounts(response.data.users);
       })

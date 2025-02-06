@@ -13,7 +13,7 @@ export default function ResetPasswordDialog({
   const handleResetPassword = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/change-password-email",
+        "http://147.93.111.133:4000/api/change-password-email",
         {
           email: email,
         }

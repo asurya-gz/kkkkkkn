@@ -12,7 +12,7 @@ export const DeleteModal = ({ isOpen, onClose, resident, onDelete }) => {
     setError(null);
 
     try {
-      await axios.delete("http://localhost:4000/api/delete-penduduk", {
+      await axios.delete("http://147.93.111.133:4000/api/delete-penduduk", {
         data: { nik: resident.nik },
       });
 
@@ -31,7 +31,8 @@ export const DeleteModal = ({ isOpen, onClose, resident, onDelete }) => {
       <div className="bg-white rounded-lg p-6 w-full max-w-md">
         <h3 className="text-lg font-semibold mb-4">Hapus Penduduk</h3>
         <p className="text-gray-600 mb-6">
-          Apakah Anda yakin ingin menghapus data penduduk <b>{resident.nama}?</b>
+          Apakah Anda yakin ingin menghapus data penduduk{" "}
+          <b>{resident.nama}?</b>
         </p>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         <div className="flex justify-end gap-2">

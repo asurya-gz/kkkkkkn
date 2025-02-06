@@ -39,8 +39,8 @@ export const AddEditModal = ({
 
       const url =
         mode === "add"
-          ? "http://localhost:4000/api/register-penduduk"
-          : `http://localhost:4000/api/edit-penduduk/${formData.nik}`;
+          ? "http://147.93.111.133:4000/api/register-penduduk"
+          : `http://147.93.111.133:4000/api/edit-penduduk/${formData.nik}`;
 
       const method = mode === "add" ? "post" : "put";
 

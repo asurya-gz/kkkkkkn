@@ -87,7 +87,7 @@ const GantiPassword = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/api/change-password",
+        "http://147.93.111.133:4000/api/change-password",
         {
           email: email,
           oldPassword: formData.currentPassword,

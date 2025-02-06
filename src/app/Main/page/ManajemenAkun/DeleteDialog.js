@@ -15,7 +15,7 @@ export default function DeleteDialog({ isOpen, email, onConfirm, onClose }) {
 
       // Using DELETE request with data in the config object
       const response = await axios.delete(
-        "http://localhost:4000/api/delete-user",
+        "http://147.93.111.133:4000/api/delete-user",
         {
           data: { email: email }, // This is the correct way to send data with DELETE
         }

@@ -26,10 +26,13 @@ export default function Home() {
     }
 
     try {
-      const response = await axios.post("http://localhost:4000/api/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://147.93.111.133:4000/api/login",
+        {
+          email,
+          password,
+        }
+      );
 
       if (response.data && response.data.message === "Login berhasil!") {
         const { token, user } = response.data;

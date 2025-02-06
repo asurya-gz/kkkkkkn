@@ -32,7 +32,7 @@ export default function AddEditDialog({
         console.log("Registering user with data:", registrationData);
 
         const response = await axios.post(
-          "http://localhost:4000/api/register",
+          "http://147.93.111.133:4000/api/register",
           registrationData
         );
 
