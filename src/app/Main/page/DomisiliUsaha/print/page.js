@@ -1,11 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { FileText, Download } from "lucide-react";
 
-const PrintSurat = () => {
+// Loading component for Suspense fallback
+const LoadingComponent = () => (
+  <div className="flex justify-center items-center min-h-screen">Memuat...</div>
+);
+
+// Main content component that uses useSearchParams
+const SuratContent = () => {
   const searchParams = useSearchParams();
   const noSurat = searchParams.get("noSurat");
   const [suratData, setSuratData] = useState(null);
@@ -52,32 +58,30 @@ const PrintSurat = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url); // Clean up the URL object
     } catch (err) {
       console.error("Gagal mengunduh surat:", err);
       alert("Terjadi kesalahan saat mengunduh surat");
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        Memuat...
-      </div>
-    );
+  if (loading) return <LoadingComponent />;
 
-  if (error)
+  if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen text-red-500">
         {error}
       </div>
     );
+  }
 
-  if (!suratData)
+  if (!suratData) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         Surat tidak ditemukan
       </div>
     );
+  }
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 text-center p-8">
@@ -101,6 +105,15 @@ const PrintSurat = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Main component that wraps the content in Suspense
+const PrintSurat = () => {
+  return (
+    <Suspense fallback={<LoadingComponent />}>
+      <SuratContent />
+    </Suspense>
   );
 };
 

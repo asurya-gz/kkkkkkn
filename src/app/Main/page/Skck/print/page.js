@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { FileText, Download } from "lucide-react";
 
-const PrintSurat = () => {
+// Create a wrapper component that uses useSearchParams
+const PrintSuratContent = () => {
   const searchParams = useSearchParams();
   const noSurat = searchParams.get("noSurat");
   const [suratData, setSuratData] = useState(null);
@@ -55,26 +56,29 @@ const PrintSurat = () => {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         Memuat...
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen text-red-500">
         {error}
       </div>
     );
+  }
 
-  if (!suratData)
+  if (!suratData) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         Surat tidak ditemukan
       </div>
     );
+  }
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 text-center p-8">
@@ -98,6 +102,20 @@ const PrintSurat = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Loading component for Suspense fallback
+const LoadingComponent = () => (
+  <div className="flex justify-center items-center min-h-screen">Memuat...</div>
+);
+
+// Main component that wraps everything in Suspense
+const PrintSurat = () => {
+  return (
+    <Suspense fallback={<LoadingComponent />}>
+      <PrintSuratContent />
+    </Suspense>
   );
 };
 
