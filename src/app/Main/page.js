@@ -5,14 +5,12 @@ import {
   ChevronDown,
   ChevronRight,
   Home,
-  Users2,
   FileCheck,
   Home as HomeIcon,
   Baby,
   UserMinus,
   Lock,
   LogOut,
-  History,
   Settings,
   FileText,
   UserPlus,
@@ -25,8 +23,13 @@ import {
 import Dashboard from "./page/Dashboard/page";
 import GantiPassword from "./page/GantiPassword/page";
 import ManajemenAkun from "./page/ManajemenAkun/page";
-import ManajemenPenduduk from "./page/ManajemenPenduduk/page";
 import SuratCutiKerja from "./page/SuratCutiKerka/page";
+import SuratBatasTanah from "./page/SuratBatasTanah/page";
+import SuratKeteranganUsaha from "./page/SuratKeteranganUsaha/page";
+import SuratKeteranganDomisiliUsaha from "./page/DomisiliUsaha/page";
+import SuratDomisili from "./page/Domisili/page";
+import SuratBelumMenikah from "./page/BelumMenikah/page";
+import PengantarSkck from "./page/Skck/page";
 
 export default function Main() {
   const [isOpen, setIsOpen] = useState(true);
@@ -53,18 +56,12 @@ export default function Main() {
   };
 
   const menuItems = [
-    { title: "KEPENDUDUKAN", isHeader: true },
-    {
-      icon: <Users2 size={18} />,
-      title: "Manajemen Penduduk",
-      id: "manajemen-penduduk",
-    },
     { title: "LAYANAN SURAT", isHeader: true },
     {
       icon: <FileText size={18} />,
       title: "Administrasi Kependudukan",
       id: "administrasi-kependudukan",
-      hasSubmenu: true,
+      hasSubmenu: false,
       submenu: [
         {
           icon: <FileText size={18} />,
@@ -97,7 +94,7 @@ export default function Main() {
       icon: <Baby size={18} />,
       title: "Kelahiran dan Kematian",
       id: "kelahiran-kematian",
-      hasSubmenu: true,
+      hasSubmenu: false,
       submenu: [
         {
           icon: <Baby size={18} />,
@@ -130,7 +127,7 @@ export default function Main() {
       icon: <UserPlus size={18} />,
       title: "Perpindahan Penduduk",
       id: "perpindahan-penduduk",
-      hasSubmenu: true,
+      hasSubmenu: false,
       submenu: [
         {
           icon: <FileText size={18} />,
@@ -160,21 +157,6 @@ export default function Main() {
       id: "perkawinan",
       hasSubmenu: true,
       submenu: [
-        {
-          icon: <FileText size={18} />,
-          title: "Blangko Pernikahan 2025",
-          id: "blangko-pernikahan",
-        },
-        {
-          icon: <FileText size={18} />,
-          title: "SPTJM Perkawinan/Perceraian Belum Tercatat",
-          id: "sptjm-perkawinan",
-        },
-        {
-          icon: <FileText size={18} />,
-          title: "SPTJM Kebenaran Pasangan Suami Istri",
-          id: "sptjm-pasangan",
-        },
         {
           icon: <FileText size={18} />,
           title: "Surat Keterangan Belum Pernah Menikah",
@@ -226,18 +208,13 @@ export default function Main() {
           title: "Surat Pengantar SKCK",
           id: "pengantar-skck",
         },
-        {
-          icon: <FileText size={18} />,
-          title: "Surat Pengantar Ijin Perjamuan",
-          id: "pengantar-perjamuan",
-        },
       ],
     },
     {
       icon: <Globe size={18} />,
       title: "Lainnya",
       id: "lainnya",
-      hasSubmenu: true,
+      hasSubmenu: false,
       submenu: [
         {
           icon: <FileText size={18} />,
@@ -279,6 +256,18 @@ export default function Main() {
         return <ManajemenPenduduk />;
       case "cuti-kerja":
         return <SuratCutiKerja />;
+      case "batas-tanah":
+        return <SuratBatasTanah />;
+      case "keterangan-usaha":
+        return <SuratKeteranganUsaha />;
+      case "domisili-usaha":
+        return <SuratKeteranganDomisiliUsaha />;
+      case "keterangan-domisili":
+        return <SuratDomisili />;
+      case "belum-menikah":
+        return <SuratBelumMenikah />;
+      case "pengantar-skck":
+        return <PengantarSkck />;
       default:
         return <Dashboard />;
     }

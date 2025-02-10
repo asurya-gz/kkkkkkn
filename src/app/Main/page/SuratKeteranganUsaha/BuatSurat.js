@@ -2,31 +2,32 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
-  const [counter, setCounter] = useState(1);
+export default function BuatSuratDomisiliUsaha({
+  onSubmit,
+  onCancel,
+  latestNoSurat,
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    noSurat: "",
+    nomor_surat: "",
     nama: "",
-    tempatLahir: "",
-    tanggalLahir: "",
-    kewarganegaraan: "Indonesia",
-    agama: "Islam",
+    tempat_lahir: "",
+    tanggal_lahir: "",
     pekerjaan: "",
-    namaPerusahaan: "",
-    nomorInduk: "",
-    bagian: "",
-    alamat: "",
-    suratBukti: "",
-    keperluan: "",
-    kepalaDesa: "",
+    tempat_tinggal: "",
+    surat_bukti_diri: "",
+    jenis_usaha: "",
+    status: "",
+    lama_usaha: "",
+    alamat_usaha: "",
+    kepala_desa: "",
   });
 
   useEffect(() => {
     if (latestNoSurat) {
       setFormData((prev) => ({
         ...prev,
-        noSurat: latestNoSurat,
+        nomor_surat: latestNoSurat,
       }));
     }
   }, [latestNoSurat]);
@@ -44,88 +45,61 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
     setIsSubmitting(true);
 
     try {
-      // Mapping formData ke format API
-      const apiData = {
-        no_surat: formData.noSurat,
-        nama: formData.nama,
-        tempat_lahir: formData.tempatLahir,
-        tanggal_lahir: formData.tanggalLahir,
-        kewarganegaraan: formData.kewarganegaraan,
-        agama: formData.agama,
-        pekerjaan: formData.pekerjaan,
-        nama_perusahaan: formData.namaPerusahaan,
-        nomor_induk: formData.nomorInduk,
-        bagian: formData.bagian,
-        alamat: formData.alamat,
-        surat_bukti: formData.suratBukti,
-        keperluan: formData.keperluan,
-        kepala_desa: formData.kepalaDesa,
-      };
-
-      console.log("Data yang akan dikirim:", apiData);
-
       // Validasi field wajib
       const requiredFields = [
-        "no_surat",
+        "nomor_surat",
         "nama",
         "tempat_lahir",
         "tanggal_lahir",
-        "kewarganegaraan",
-        "agama",
         "pekerjaan",
-        "nama_perusahaan",
-        "nomor_induk",
-        "bagian",
-        "alamat",
-        "surat_bukti",
-        "keperluan",
+        "tempat_tinggal",
+        "surat_bukti_diri",
+        "jenis_usaha",
+        "status",
+        "lama_usaha",
+        "alamat_usaha",
         "kepala_desa",
       ];
 
-      const missingFields = requiredFields.filter((field) => !apiData[field]);
+      const missingFields = requiredFields.filter((field) => !formData[field]);
       if (missingFields.length > 0) {
         throw new Error(
           `Field berikut harus diisi: ${missingFields.join(", ")}`
         );
       }
 
-      // Mengirim data ke API tanpa header
       const response = await axios.post(
-        "http://147.93.111.133:4000/api/create-suratcuti",
-        apiData
+        "http://147.93.111.133:4000/api/create-keteranganusaha",
+        formData
       );
 
       console.log("Response dari server:", response.data);
 
       if (response.data.success) {
-        onSubmit(response.data); // Fungsi callback setelah submit berhasil
-        alert("Surat cuti berhasil dibuat!");
+        onSubmit(response.data);
+        alert("Surat keterangan usaha berhasil dibuat!");
 
-        // Reset form setelah berhasil
+        // Reset form
         setFormData({
-          noSurat: "",
+          nomor_surat: "",
           nama: "",
-          tempatLahir: "",
-          tanggalLahir: "",
-          kewarganegaraan: "Indonesia",
-          agama: "Islam",
+          tempat_lahir: "",
+          tanggal_lahir: "",
           pekerjaan: "",
-          namaPerusahaan: "",
-          nomorInduk: "",
-          bagian: "",
-          alamat: "",
-          suratBukti: "",
-          keperluan: "",
-          kepalaDesa: "",
+          tempat_tinggal: "",
+          surat_bukti_diri: "",
+          jenis_usaha: "",
+          status: "",
+          lama_usaha: "",
+          alamat_usaha: "",
+          kepala_desa: "",
         });
-
-        // Increment nomor surat
-        setCounter((prev) => prev + 1);
       } else {
-        throw new Error(response.data.message || "Gagal membuat surat cuti");
+        throw new Error(
+          response.data.message || "Gagal membuat surat keterangan usaha"
+        );
       }
     } catch (error) {
-      // Menangani berbagai jenis error dari axios
       if (error.response) {
         console.error("Server responded with error:", error.response.data);
         alert(
@@ -147,7 +121,7 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
 
   return (
     <div className="p-6 text-gray-600">
-      <h2 className="text-2xl font-bold mb-6">Buat Surat Cuti Kerja</h2>
+      <h2 className="text-2xl font-bold mb-6">Buat Surat Keterangan Usaha</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Nomor Surat */}
@@ -158,8 +132,8 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
             </label>
             <input
               type="text"
-              name="noSurat"
-              value={formData.noSurat}
+              name="nomor_surat"
+              value={formData.nomor_surat}
               className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50"
               disabled
             />
@@ -192,8 +166,8 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
               </label>
               <input
                 type="text"
-                name="tempatLahir"
-                value={formData.tempatLahir}
+                name="tempat_lahir"
+                value={formData.tempat_lahir}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -205,32 +179,8 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
               </label>
               <input
                 type="date"
-                name="tanggalLahir"
-                value={formData.tanggalLahir}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Kewarganegaraan & Agama
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                type="text"
-                name="kewarganegaraan"
-                value={formData.kewarganegaraan}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-              <input
-                type="text"
-                name="agama"
-                value={formData.agama}
+                name="tanggal_lahir"
+                value={formData.tanggal_lahir}
                 onChange={handleChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
@@ -251,76 +201,92 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
               required
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Tempat Tinggal
+            </label>
+            <textarea
+              name="tempat_tinggal"
+              value={formData.tempat_tinggal}
+              onChange={handleChange}
+              rows="2"
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
         </div>
 
-        {/* Informasi Pekerjaan */}
+        {/* Informasi Usaha */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nama Perusahaan
-            </label>
-            <input
-              type="text"
-              name="namaPerusahaan"
-              value={formData.namaPerusahaan}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nomor Induk Karyawan
-            </label>
-            <input
-              type="text"
-              name="nomorInduk"
-              value={formData.nomorInduk}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bagian
-            </label>
-            <input
-              type="text"
-              name="bagian"
-              value={formData.bagian}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Surat Bukti Diri
             </label>
             <input
               type="text"
-              name="suratBukti"
-              value={formData.suratBukti}
+              name="surat_bukti_diri"
+              value={formData.surat_bukti_diri}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Contoh: KTP - 3311052507020002"
               required
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Jenis Usaha
+            </label>
+            <input
+              type="text"
+              name="jenis_usaha"
+              value={formData.jenis_usaha}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status Usaha
+            </label>
+            <input
+              type="text"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Lama Usaha
+            </label>
+            <input
+              type="text"
+              name="lama_usaha"
+              value={formData.lama_usaha}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Contoh: 2 Tahun"
+              required
+            />
+          </div>
         </div>
 
-        {/* Alamat dan Keperluan */}
+        {/* Alamat Usaha dan Kepala Desa */}
         <div className="grid grid-cols-1 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Alamat
+              Alamat Usaha
             </label>
             <textarea
-              name="alamat"
-              value={formData.alamat}
+              name="alamat_usaha"
+              value={formData.alamat_usaha}
               onChange={handleChange}
               rows="2"
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -334,26 +300,11 @@ export default function BuatSurat({ onSubmit, onCancel, latestNoSurat }) {
             </label>
             <input
               type="text"
-              name="kepalaDesa"
-              value={formData.kepalaDesa}
+              name="kepala_desa"
+              value={formData.kepala_desa}
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Nama Kepala Desa"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Keperluan
-            </label>
-            <textarea
-              name="keperluan"
-              value={formData.keperluan}
-              onChange={handleChange}
-              rows="3"
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Mohon Cuti Kerja untuk keperluan saudara menikah pada tanggal..."
               required
             />
           </div>

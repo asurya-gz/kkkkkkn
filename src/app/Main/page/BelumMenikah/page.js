@@ -5,11 +5,11 @@ import { Search, Plus, Printer, Trash2, X, AlertCircle } from "lucide-react";
 import BuatSurat from "./BuatSurat";
 import { useRouter } from "next/navigation";
 
-export default function SuratCutiKerja() {
+export default function SuratBelumMenikah() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [suratCuti, setSuratCuti] = useState([]);
+  const [suratbelummenikah, setSuratbelummenikah] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -17,41 +17,71 @@ export default function SuratCutiKerja() {
   const [latestNoSurat, setLatestNoSurat] = useState("");
 
   useEffect(() => {
-    fetchSuratCuti();
+    fetchSuratbelummenikah();
   }, []);
 
-  const fetchSuratCuti = async () => {
+  const generateNextNoSurat = (lastNoSurat = "") => {
+    try {
+      const currentYear = new Date().getFullYear();
+
+      if (!lastNoSurat) {
+        return `474.2/001/${currentYear}`;
+      }
+
+      const parts = lastNoSurat.split("/");
+      if (parts.length !== 3) {
+        return `474.2/001/${currentYear}`;
+      }
+
+      const prefix = "474.2";
+      const lastNumber = parseInt(parts[1]);
+      const nextNumber = (lastNumber + 1).toString().padStart(3, "0");
+
+      return `${prefix}/${nextNumber}/${currentYear}`;
+    } catch (err) {
+      console.error("Error generating next number:", err);
+      const currentYear = new Date().getFullYear();
+      return `474.2/001/${currentYear}`;
+    }
+  };
+
+  const fetchSuratbelummenikah = async () => {
     try {
       setIsLoading(true);
       const response = await axios.get(
-        "http://147.93.111.133:4000/api/all-suratcuti"
+        "http://147.93.111.133:4000/api/all-belummenikah"
       );
-      if (response.data.success) {
-        // Sort the surat data by number in descending order
-        const sortedSurat = response.data.suratCuti.sort((a, b) => {
-          const numA = parseInt(a.no_surat.split("/")[1]);
-          const numB = parseInt(b.no_surat.split("/")[1]);
-          return numB - numA;
-        });
-        setSuratCuti(sortedSurat);
 
-        // Get the latest nomor surat
-        if (sortedSurat.length > 0) {
-          const lastSurat = sortedSurat[0];
-          const [prefix, num, year] = lastSurat.no_surat.split("/");
-          const nextNumber = (parseInt(num) + 1).toString().padStart(3, "0");
-          const nextNoSurat = `${prefix}/${nextNumber}/${year}`;
+      if (response.data.success) {
+        const data = response.data.keteranganBelumMenikah || []; // Updated to match API response
+
+        if (data.length > 0) {
+          const sortedSurat = data.sort((a, b) => {
+            // Extract the number part from nomor_surat
+            const numA = parseInt(a.nomor_surat.split("/")[1]) || 0;
+            const numB = parseInt(b.nomor_surat.split("/")[1]) || 0;
+            return numB - numA;
+          });
+
+          setSuratbelummenikah(sortedSurat);
+
+          // Generate next number based on the last surat
+          const nextNoSurat = generateNextNoSurat(sortedSurat[0].nomor_surat);
           setLatestNoSurat(nextNoSurat);
         } else {
-          // If no existing surat, start with 001
-          const currentYear = new Date().getFullYear();
-          setLatestNoSurat(`850/001/${currentYear}`);
+          setSuratbelummenikah([]);
+          setLatestNoSurat(generateNextNoSurat());
         }
       } else {
-        setError("Failed to fetch data");
+        setError(response.data.message || "Failed to fetch data");
+        setSuratbelummenikah([]);
+        setLatestNoSurat(generateNextNoSurat());
       }
     } catch (err) {
+      console.error("Error fetching data:", err);
       setError(err.message);
+      setSuratbelummenikah([]);
+      setLatestNoSurat(generateNextNoSurat());
     } finally {
       setIsLoading(false);
     }
@@ -62,9 +92,8 @@ export default function SuratCutiKerja() {
   };
 
   const handlePrint = (surat) => {
-    const baseUrl = window.location.origin; // Gets the base URL like http://147.93.111.133:3000
-    const printUrl = `${baseUrl}/Main/page/SuratCutiKerka/print?noSurat=${surat.no_surat}`;
-
+    const baseUrl = window.location.origin;
+    const printUrl = `${baseUrl}/Main/page/BelumMenikah/print?noSurat=${surat.nomor_surat}`;
     window.open(printUrl, "_blank");
   };
 
@@ -76,17 +105,17 @@ export default function SuratCutiKerja() {
   const handleDeleteConfirm = async () => {
     try {
       const response = await axios.delete(
-        "http://147.93.111.133:4000/api/delete-suratcuti",
+        "http://147.93.111.133:4000/api/delete-belummenikah",
         {
           data: {
-            no_surat: suratToDelete.no_surat,
+            nomor_surat: suratToDelete.nomor_surat,
           },
         }
       );
 
       if (response.data.success) {
         alert("Berhasil Menghapus Surat!");
-        await fetchSuratCuti();
+        await fetchSuratbelummenikah();
         setIsDeleteDialogOpen(false);
         setSuratToDelete(null);
       } else {
@@ -100,16 +129,16 @@ export default function SuratCutiKerja() {
 
   const handleFormSubmit = async (formData) => {
     try {
-      await fetchSuratCuti();
+      await fetchSuratbelummenikah();
       setIsModalOpen(false);
     } catch (err) {
       console.error("Error creating surat:", err);
     }
   };
 
-  const filteredSurat = suratCuti.filter(
+  const filteredSurat = suratbelummenikah.filter(
     (surat) =>
-      surat.no_surat?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      surat.nomor_surat?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       surat.nama?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -121,20 +150,12 @@ export default function SuratCutiKerja() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
-        Error: {error}
-      </div>
-    );
-  }
-
-  console.log(latestNoSurat);
-
   return (
     <>
       <div className="bg-white rounded-lg shadow-lg p-6 text-gray-600">
-        <h2 className="text-2xl font-bold mb-6">Surat Cuti Kerja</h2>
+        <h2 className="text-2xl font-bold mb-6">
+          Surat Keterangan Belum Pernah Menikah
+        </h2>
 
         <div className="flex justify-between items-center mb-6">
           <div className="relative">
@@ -159,9 +180,14 @@ export default function SuratCutiKerja() {
           </button>
         </div>
 
-        {filteredSurat.length === 0 ? (
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-4">
-            Tidak ada surat yang ditemukan
+        {error ? (
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+            Error: {error}
+          </div>
+        ) : filteredSurat.length === 0 ? (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-4 flex items-center gap-2">
+            <AlertCircle size={20} />
+            <span>Tidak ada surat yang ditemukan</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -172,13 +198,16 @@ export default function SuratCutiKerja() {
                     No Surat
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nama Pegawai
+                    Nama
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Perusahaan
+                    Tempat Lahir
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Bagian
+                    Tanggal Lahir
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    pekerjaan
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Aksi
@@ -189,16 +218,27 @@ export default function SuratCutiKerja() {
                 {filteredSurat.map((surat) => (
                   <tr key={surat.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {surat.no_surat}
+                      {surat.nomor_surat}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {surat.nama}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {surat.nama_perusahaan}
+                      {surat.tempat_lahir}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {surat.bagian}
+                      {new Date(surat.tanggal_lahir).toLocaleDateString(
+                        "id-ID",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      )}
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {surat.pekerjaan}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex gap-2">
@@ -280,7 +320,7 @@ export default function SuratCutiKerja() {
 
               <p className="text-gray-600 mb-6">
                 Apakah anda yakin akan menghapus surat dengan nomor surat{" "}
-                {suratToDelete?.no_surat}?
+                {suratToDelete?.nomor_surat}?
               </p>
 
               <div className="flex justify-end gap-3">
